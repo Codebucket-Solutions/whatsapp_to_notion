@@ -18,7 +18,7 @@ const {
   INVALID_PASSWORD,
   SUCCESS,
 } = constant;
-const moment = require('moment');
+const moment = require('moment-timezone');
 
 class Auth {
   constructor() {

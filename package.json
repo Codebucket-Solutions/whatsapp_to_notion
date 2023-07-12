@@ -25,6 +25,7 @@
 		"lodash": "^4.17.21",
 		"mime-types": "^2.1.35",
 		"moment": "^2.29.4",
+		"moment-timezone": "^0.5.43",
 		"morgan": "~1.9.1",
 		"snakecase-keys": "^5.1.2"
 	},
