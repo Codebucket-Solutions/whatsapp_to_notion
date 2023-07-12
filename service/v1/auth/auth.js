@@ -138,9 +138,9 @@ class Auth {
 
     let processedText = processText(text);
 
-    console.log(processText);
+    console.log(processedText);
 
-    let notionPayload = this.createNotionPayload({
+    let notionPayload = await this.createNotionPayload({
       name:processedText.text,
       tags:processedText['#'],
       urls:processedText.urls,
