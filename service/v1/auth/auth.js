@@ -143,7 +143,7 @@ class Auth {
     let notionPayload = await this.createNotionPayload({
       name:processedText.text,
       tags:processedText['#'],
-      urls:processedText.urls,
+      urls:processedText.links,
       date:dateObject,
       messageId:messageId,
       entireText:text
