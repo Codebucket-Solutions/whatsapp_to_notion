@@ -1,9 +1,15 @@
 const drive = require("@googleapis/drive");
 const fs = require("fs");
+const path = require("path");
 class GDrive {
   constructor(options) {
     let { serviceAccountKey, serviceAccountKeyPath } = options;
     try {
+      
+      if(!path.isAbsolute(path)) {
+        serviceAccountKeyPath = path.join(__dirname,serviceAccountKey)
+      }
+
       if (serviceAccountKey && !fs.existsSync(serviceAccountKeyPath)) {
         fs.writeFileSync(
           serviceAccountKeyPath,
