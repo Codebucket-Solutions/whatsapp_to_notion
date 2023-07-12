@@ -161,7 +161,7 @@ class Auth {
   }
 
   async webhookVerify(body) {
-    return this.whatsappWebhook.webhookVerify(body);
+    return await this.whatsappWebhook.webhookVerify(body);
   }
 }
 
