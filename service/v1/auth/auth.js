@@ -209,7 +209,7 @@ class Auth {
         urls:processedText.links,
         date:dateObject,
         messageId:messageId,
-        entireText:text,
+        entireText:caption,
         file:fileUrl
       })
   
