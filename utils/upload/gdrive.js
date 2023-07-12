@@ -60,9 +60,10 @@ class GDrive {
     });
   }
 
-  async get(options) {
+  async getWebViewLink(options) {
     let { fileId } = options;
-    let file = await this.drive.files.get({ fileId });
+    let file = await this.drive.files.get({ fileId,
+        fields: 'webViewLink' });
     return file;
   }
 }

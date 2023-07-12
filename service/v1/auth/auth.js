@@ -113,7 +113,7 @@ class Auth {
   }
 
   async createNotionPayload(props) {
-    let {name,tags,date,urls,file,messageId,entireText} = props;
+    let {name,tags,date,urls,file,filePreview,messageId,entireText} = props;
     let properties = {};
     let children = [];
     if(name)
@@ -146,9 +146,9 @@ class Auth {
       )
     }
 
-    if(file) {
+    if(filePreview) {
       children.push(
-        notionProps.embed(notionProps.url(file))
+        notionProps.embed(notionProps.url(filePreview))
       )
     }
 
@@ -199,9 +199,11 @@ class Auth {
   
       await this.gDriveApi.addPermissions({fileId,role: 'reader',type: 'anyone'});
   
-      driveFileData = await this.gDriveApi.get({fileId});
+      driveFileData = await this.gDriveApi.getWebViewLink({fileId});
   
       let fileUrl = driveFileData.data.webViewLink;
+
+      let filePreviewUrl = fileUrl.replace('/view','/preview')
   
       let notionPayload = await this.createNotionPayload({
         name:processedText.text,
@@ -210,7 +212,8 @@ class Auth {
         date:dateObject,
         messageId:messageId,
         entireText:caption,
-        file:fileUrl
+        file:fileUrl,
+        filePreview:filePreviewUrl
       })
   
       await this.notionApi.addPage(notionPayload);
