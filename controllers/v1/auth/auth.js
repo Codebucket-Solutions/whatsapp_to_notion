@@ -13,6 +13,7 @@ const webhook = async (req, res, next) => {
 
 const webhookVerify = async (req, res, next) => {
 	try {
+		console.log(req.query)
 		return await new Auth().webhookVerify(req.query); 
 	} catch (error) {
 		next(error);
