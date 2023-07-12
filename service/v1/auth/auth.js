@@ -185,38 +185,41 @@ class Auth {
   }
 
   async documentMessageHandler (message,value) {
-    let {messageId,phoneNumberId,dateObject,mediaId,mimeType,fileName,caption} = await this.commonHandler(message,value,'document');
+    try {
+      let {messageId,phoneNumberId,dateObject,mediaId,mimeType,fileName,caption} = await this.commonHandler(message,value,'document');
     
-    let processedText = processText(caption);
-
-    let fileData = await this.whatsappCloudApi.getMediaUrl(mediaId);
-
-    let mediaStream = await this.whatsappCloudApi.getMediaStream(fileData.data.url);
-
-    let driveFileData = await this.gDriveApi.uploadFile({fileName,mimeType,mediaStream});
-
-    let fileId = driveFileData.data.id;
-
-    await this.gDriveApi.addPermissions({fileId,role: 'reader',type: 'anyone'});
-
-    driveFileData = await this.gDriveApi.get({fileId});
-
-    let fileUrl = driveFileData.data.webViewLink;
-
-    let notionPayload = await this.createNotionPayload({
-      name:processedText.text,
-      tags:processedText['#'],
-      urls:processedText.links,
-      date:dateObject,
-      messageId:messageId,
-      entireText:text,
-      file:fileUrl
-    })
-
-    await this.notionApi.addPage(notionPayload);
-
-    await this.whatsappCloudApi.markMessageAsRead(phoneNumberId,messageId);
-
+      let processedText = processText(caption);
+  
+      let fileData = await this.whatsappCloudApi.getMediaUrl(mediaId);
+  
+      let mediaStream = await this.whatsappCloudApi.getMediaStream(fileData.data.url);
+  
+      let driveFileData = await this.gDriveApi.uploadFile({fileName,mimeType,mediaStream});
+  
+      let fileId = driveFileData.data.id;
+  
+      await this.gDriveApi.addPermissions({fileId,role: 'reader',type: 'anyone'});
+  
+      driveFileData = await this.gDriveApi.get({fileId});
+  
+      let fileUrl = driveFileData.data.webViewLink;
+  
+      let notionPayload = await this.createNotionPayload({
+        name:processedText.text,
+        tags:processedText['#'],
+        urls:processedText.links,
+        date:dateObject,
+        messageId:messageId,
+        entireText:text,
+        file:fileUrl
+      })
+  
+      await this.notionApi.addPage(notionPayload);
+  
+      await this.whatsappCloudApi.markMessageAsRead(phoneNumberId,messageId);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async webhook(body) {
