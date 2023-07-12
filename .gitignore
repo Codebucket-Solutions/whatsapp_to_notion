@@ -1,5 +1,6 @@
 node_modules/
 .env
 .idea
+package-lock.json
 ecosystem.config.js
 service_account/
