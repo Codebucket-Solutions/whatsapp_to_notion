@@ -7,13 +7,14 @@ class GDrive {
     try {
       
       if(!path.isAbsolute(serviceAccountKeyPath)) {
-        serviceAccountKeyPath = path.join(__dirname,serviceAccountKey)
+        serviceAccountKeyPath = path.join(__dirname,serviceAccountKeyPath)
       }
 
       if (serviceAccountKey && !fs.existsSync(serviceAccountKeyPath)) {
         fs.writeFileSync(
           serviceAccountKeyPath,
-          serviceAccountKey
+          serviceAccountKey,
+          "utf8"
         );
       }
       let auth = new drive.auth.GoogleAuth({
