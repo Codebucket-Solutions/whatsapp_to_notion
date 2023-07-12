@@ -18,6 +18,7 @@ const {
   INVALID_PASSWORD,
   SUCCESS,
 } = constant;
+const moment = require('moment');
 
 class Auth {
   constructor() {
