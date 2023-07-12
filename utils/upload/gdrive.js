@@ -10,6 +10,11 @@ class GDrive {
         serviceAccountKeyPath = path.join(__dirname,serviceAccountKeyPath)
       }
 
+      let directory = path.dirname(serviceAccountKeyPath)
+
+      if (!fs.existsSync(directory))
+        fs.mkdirSync(directory, { recursive: true });
+
       if (serviceAccountKey && !fs.existsSync(serviceAccountKeyPath)) {
         fs.writeFileSync(
           serviceAccountKeyPath,
