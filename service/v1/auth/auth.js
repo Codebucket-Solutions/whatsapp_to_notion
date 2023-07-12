@@ -81,8 +81,8 @@ class Auth {
     }
   }
 
-  async createNotionPayload(props,entireText) {
-    let {name,tags,date,urls,file,messageId} = props;
+  async createNotionPayload(props) {
+    let {name,tags,date,urls,file,messageId,entireText} = props;
     let properties = {};
     let children = [];
     if(name)
