@@ -54,8 +54,7 @@ class Auth {
     })
 
     this.gDriveApi = new GDrive({
-      serviceAccountKey:process.env.SERVICE_ACCOUNT_KEY
-      ,serviceAccountKeyPath:process.env.SERVICE_ACCOUNT_KEY_PATH
+      serviceAccountKey:process.env.SERVICE_ACCOUNT_KEY,serviceAccountKeyPath:process.env.SERVICE_ACCOUNT_KEY_PATH
     })
 
   }
