@@ -1,0 +1,39 @@
+name: Deploy to server
+
+on:
+  push:
+    branches: 'dev'
+
+jobs:
+  deploy:
+    name: "Deploying stage branch to server"
+    runs-on: ubuntu-latest      
+    steps:
+      - name: SSH to server
+        uses: appleboy/ssh-action@master
+        env: 
+          PROJECT_PATH: "/home"
+          PROCESS_NAME: "WHATSAPP-NOTION-STAGE"
+          TOKEN: ${{ secrets.TOKEN }}
+        with:
+          host: ${{ secrets.SSH_HOST_STAGE }}
+          username: ${{ secrets.SSH_USERNAME_STAGE }}
+          key: ${{ secrets.SSH_KEY_STAGE }}
+          envs: PROJECT_PATH,PROCESS_NAME,TOKEN
+          script: |
+            DIR="$PROJECT_PATH/$PROCESS_NAME"
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh 
+            if [ -d "$DIR" ]; then        
+              cd "$DIR"
+            else
+              cd $PROJECT_PATH
+              git clone https://${TOKEN}@github.com/${{ github.repository }} ${PROCESS_NAME}
+              cd $PROCESS_NAME
+            fi
+            git checkout dev
+            git pull origin dev
+            nvm use
+            npm install
+            pm2 restart ecosystem.config.js --only $PROCESS_NAME
+            pm2 save
