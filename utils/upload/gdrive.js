@@ -18,7 +18,7 @@ class GDrive {
       if (serviceAccountKey && !fs.existsSync(serviceAccountKeyPath)) {
         fs.writeFileSync(
           serviceAccountKeyPath,
-          serviceAccountKey,
+          JSON.stringify(serviceAccountKey),
           "utf8"
         );
       }
