@@ -10,7 +10,6 @@ router.post("/webhook", (req, res, next) => {
 
 router.get("/webhook", async (req, res, next) => {
   let data = await webhookVerify(req, res, next);
-  console.log(data);
   return res.send(data);
 });
 

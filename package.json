@@ -9,6 +9,7 @@
 		"start_prod": "set NODE_ENV=production&&node ./bin/www --name 'WHATSAPP-WEBHOOK'"
 	},
 	"dependencies": {
+		"@googleapis/drive": "^8.0.0",
 		"@notionhq/client": "^2.2.6",
 		"axios": "^0.21.1",
 		"axios-cache-adapter": "^2.7.3",

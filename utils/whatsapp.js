@@ -24,7 +24,6 @@ class WhatsappWebhook extends EventEmitter {
 
     async changeHandler (changes) {
         for(let change of changes) {
-            //console.log(change)
             switch(change.field) {
                 case "messages":
                     await this.messageChangeHandler(change.value);
@@ -80,6 +79,13 @@ class WhatsappCloudApi {
         });
         await pipeline(request.data, fs.createWriteStream(downloadPath));
         return downloadPath;
+    }
+
+    async getMediaStream(url) {
+        let request = await this.axiosInstance.get(url,{
+            responseType: 'stream',
+        });
+        return request.data
     }
 
     async markMessageAsRead(phoneNumberId,messageId) {
