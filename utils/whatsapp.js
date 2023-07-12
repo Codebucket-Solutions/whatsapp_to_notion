@@ -46,7 +46,7 @@ class WhatsappWebhook extends EventEmitter {
         }
     }
 
-    async webhookVerify(data) {
+    async webhookVerify(body) {
         if (body["hub.verify_token"] == this.webhookVerifyToken) {
             return body["hub.challenge"];
         }
