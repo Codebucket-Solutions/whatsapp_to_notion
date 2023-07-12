@@ -35,17 +35,7 @@ class Auth {
     });
 
     this.whatsappWebhook.on("message", async (message,value)=>{
-      switch(message.type) {
-        case "text":
-          await this.textMessageHandler(message,value);
-          break;
-        case "document":
-          await this.documentMessageHandler(message,value);
-          break;
-        default:
-          await this.textMessageHandler(message,value);
-          break;
-      }
+      await this.messageHandler(message,value);
     })
 
     this.notionApi = new Notion({
@@ -54,12 +44,13 @@ class Auth {
     })
 
     this.gDriveApi = new GDrive({
-      serviceAccountKey:process.env.SERVICE_ACCOUNT_KEY,serviceAccountKeyPath:process.env.SERVICE_ACCOUNT_KEY_PATH
+      serviceAccountKey:process.env.SERVICE_ACCOUNT_KEY,
+      serviceAccountKeyPath:process.env.SERVICE_ACCOUNT_KEY_PATH
     })
 
   }
 
-  async commonHandler(message,value,objectKey=null) {
+  async commonHandler(message,value,messageType=null) {
     let {metadata,contacts} = value;
     let timestamp = message.timestamp;
     let dateString = moment.unix(timestamp).tz('Asia/Kolkata').format("YYYY-MM-DD HH:mm:ss");
@@ -78,29 +69,7 @@ class Auth {
       }
     }
 
-    if(objectKey) {
-      let mediaId = message[objectKey].id;
-      let mimeType = message[objectKey].mime_type;
-      let fileName = mediaId+'.'+mime.extension(mimeType)
-      let caption = message[objectKey].caption?message[objectKey].caption:"";
-
-      return {
-        timestamp,
-        dateString,
-        phoneNumberId,
-        messageId,
-        from,
-        replyId,
-        dateObject,
-        name,
-        mediaId,
-        mimeType,
-        fileName,
-        caption
-      }
-    }
-
-    return {
+    let data = {
       timestamp,
       dateString,
       phoneNumberId,
@@ -110,6 +79,17 @@ class Auth {
       dateObject,
       name
     }
+
+    if(messageType && messageType!='text') {
+      let mediaId = message[messageType].id;
+      let mimeType = message[messageType].mime_type;
+      let fileName = mediaId+'.'+mime.extension(mimeType)
+      let caption = message[messageType].caption?message[messageType].caption:"";
+
+      data= {...data,mediaId,mimeType,fileName,caption}
+    }
+
+    return data
   }
 
   async createNotionPayload(props) {
@@ -157,53 +137,38 @@ class Auth {
     }
   }
 
-  async textMessageHandler(message,value) {
-    
-    let {messageId,phoneNumberId,dateObject} = await this.commonHandler(message,value)
-
-    let text = '';
-    if(message.text) {
-      if(message.text.body)
-        text = message.text.body
-    }
-
-    let processedText = processText(text);
-
-    let notionPayload = await this.createNotionPayload({
-      name:processedText.text,
-      tags:processedText['#'],
-      urls:processedText.links,
-      date:dateObject,
-      messageId,
-      entireText:text
-    })
-
-    await this.notionApi.addPage(notionPayload);
-
-    await this.whatsappCloudApi.markMessageAsRead(phoneNumberId,messageId);
-  }
-
-  async documentMessageHandler (message,value) {
+  async messageHandler (message,value) {
     try {
-      let {messageId,phoneNumberId,dateObject,mediaId,mimeType,fileName,caption} = await this.commonHandler(message,value,'document');
-    
-      let processedText = processText(caption);
-  
-      let fileData = await this.whatsappCloudApi.getMediaUrl(mediaId);
-  
-      let mediaStream = await this.whatsappCloudApi.getMediaStream(fileData.data.url);
-  
-      let driveFileData = await this.gDriveApi.uploadFile({fileName,mimeType,mediaStream});
-  
-      let fileId = driveFileData.data.id;
-  
-      await this.gDriveApi.addPermissions({fileId,role: 'reader',type: 'anyone'});
-  
-      driveFileData = await this.gDriveApi.getWebViewLink({fileId});
-  
-      let fileUrl = driveFileData.data.webViewLink;
+      let {messageId,phoneNumberId,dateObject,mediaId,mimeType,fileName,caption} = await this.commonHandler(message,value,message.type);
+      let processedText = {}
+      
+      if(message.type!='text')
+        processedText = processText(caption);
+      else
+        processedText = processText(message);
 
-      let filePreviewUrl = fileUrl.replace('/view','/preview')
+      processedText['#'].push(message.type);
+
+      let fileUrl = null;
+      let filePreviewUrl = null;
+
+      if(message.type!='text') {
+        let fileData = await this.whatsappCloudApi.getMediaUrl(mediaId);
+  
+        let mediaStream = await this.whatsappCloudApi.getMediaStream(fileData.data.url);
+  
+        let driveFileData = await this.gDriveApi.uploadFile({fileName,mimeType,mediaStream});
+  
+        let fileId = driveFileData.data.id;
+  
+        await this.gDriveApi.addPermissions({fileId,role: 'reader',type: 'anyone'});
+  
+        driveFileData = await this.gDriveApi.getWebViewLink({fileId});
+  
+        fileUrl = driveFileData.data.webViewLink;
+
+        filePreviewUrl = fileUrl.replace('/view','/preview')
+      }
   
       let notionPayload = await this.createNotionPayload({
         name:processedText.text,
