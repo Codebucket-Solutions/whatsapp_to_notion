@@ -20,7 +20,8 @@ const {
 } = constant;
 const moment = require('moment-timezone');
 const { GDrive } = require("../../../utils/upload");
-const mime = require('mime-types')
+const mime = require('mime-types');
+const { text } = require("express");
 
 class Auth {
   constructor() {
@@ -141,11 +142,17 @@ class Auth {
     try {
       let {messageId,phoneNumberId,dateObject,mediaId,mimeType,fileName,caption} = await this.commonHandler(message,value,message.type);
       let processedText = {}
-      
+      let text = '';   
       if(message.type!='text')
         processedText = processText(caption);
-      else
+      else {
+        if(message.text) {
+          if(message.text.body)
+            text = message.text.body
+        }
         processedText = processText(message);
+      }
+        
 
       processedText['#'].push(message.type);
 
@@ -176,7 +183,7 @@ class Auth {
         urls:processedText.links,
         date:dateObject,
         messageId:messageId,
-        entireText:caption,
+        entireText:message.type!='text'?caption:text,
         file:fileUrl,
         filePreview:filePreviewUrl
       })
