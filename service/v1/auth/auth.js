@@ -150,7 +150,7 @@ class Auth {
           if(message.text.body)
             text = message.text.body
         }
-        processedText = processText(message);
+        processedText = processText(text);
       }
         
 
