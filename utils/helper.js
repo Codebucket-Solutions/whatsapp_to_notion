@@ -30,7 +30,7 @@ module.exports = {
     let groupedText = _.groupBy(textWords,(textWord)=>{
       if(textWord.startsWith('#'))
         return "#"
-      if(isValidHttpUrl(text))
+      if(isValidHttpUrl(textWord))
         return "links"
       return "text"
     })
