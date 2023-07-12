@@ -163,7 +163,6 @@ class Auth {
   async webhookVerify(body) {
     return this.whatsappWebhook.webhookVerify(body);
   }
-
 }
 
 module.exports = Auth;
