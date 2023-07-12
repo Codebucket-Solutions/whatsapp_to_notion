@@ -1,6 +1,5 @@
 const camelcaseKeys = require("camelcase-keys");
 const _ = require('lodash');
-let urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
 module.exports = {
   camelize: (obj, stopPaths = []) => {
     try {
@@ -14,11 +13,24 @@ module.exports = {
   },
 
   processText: (text) => {
+
+    function isValidHttpUrl(string) {
+      let url;
+      
+      try {
+        url = new URL(string);
+      } catch (_) {
+        return false;  
+      }
+    
+      return url.protocol === "http:" || url.protocol === "https:";
+    }
+
     let textWords = text.split(/[\s\n\r]/gim);
     let groupedText = _.groupBy(textWords,(textWord)=>{
       if(textWord.startsWith('#'))
         return "#"
-      if(urlRegex.test(text))
+      if(isValidHttpUrl(text))
         return "links"
       return "text"
     })
