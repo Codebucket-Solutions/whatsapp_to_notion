@@ -101,7 +101,7 @@ class Auth {
       properties['File'] = notionProps.url(file)
     }
     if(messageId) {
-      properties['Message Id'] = notionProps.text(messageId)
+      properties['Message Id'] = notionProps.richText([notionProps.text(messageId)])
     }
 
     if(entireText)
