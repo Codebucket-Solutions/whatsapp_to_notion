@@ -6,7 +6,7 @@ class GDrive {
     let { serviceAccountKey, serviceAccountKeyPath } = options;
     try {
       
-      if(!path.isAbsolute(path)) {
+      if(!path.isAbsolute(serviceAccountKeyPath)) {
         serviceAccountKeyPath = path.join(__dirname,serviceAccountKey)
       }
 
