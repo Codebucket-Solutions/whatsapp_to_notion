@@ -138,6 +138,8 @@ class Auth {
 
     let processedText = processText(text);
 
+    console.log(processText);
+
     let notionPayload = this.createNotionPayload({
       name:processedText.text,
       tags:processedText['#'],
@@ -146,6 +148,8 @@ class Auth {
       messageId:messageId,
       entireText:text
     })
+
+    console.log(notionPayload);
 
     await this.notionApi.addPage(notionPayload);
 
