@@ -88,9 +88,8 @@ class Auth {
     if(name)
       properties['Name'] = notionProps.pageTitle(name);
     if(tags) {
-      tags = tags.map(t=>{name:t});
+      tags = tags.map(t=>({name:t}));
       properties['Tags'] = notionProps.multiSelect(tags);
-      console.log(properties['Tags']);
     }
     if(date) {
       properties['Date'] = notionProps.date(date);
