@@ -94,6 +94,25 @@ class Auth {
     let properties = {};
     let children = [];
     
+    if(replyId) {
+      let comment = []
+      if(entireText) {
+        comment.push(notionProps.text(entireText))
+      }
+      if(urls) {
+        comment.push(
+          ...urls.map(url=>notionProps.text(url+'\n',notionProps.url(url)))
+        )
+      }
+      if(file) {
+        comment.push(
+          notionProps.text(file+'\n',notionProps.url(file))
+        )
+      }
+
+      return {richText:notionProps.richText(comment)}
+    }
+
     if(entireText)
       children.push(
         notionProps.paragraph([notionProps.text(entireText)])
@@ -111,10 +130,6 @@ class Auth {
       )
     }
 
-    if(replyId) {
-      console.log(children)
-      return {richText:notionProps.richText(children)}
-    }
     
     if(name)
       properties['Name'] = notionProps.pageTitle(name);
@@ -173,7 +188,9 @@ class Auth {
         )
   
         file = downloadUrl;
-        embed = embedUrl
+        embed = embedUrl;
+        if(!embed)
+          embed = downloadUrl;
       }
   
       let notionPayload = await this.createNotionPayload({
@@ -193,7 +210,6 @@ class Auth {
           filter: {property:"Message Id","rich_text": {"equals": replyId}}
         })
         let richText = notionPayload.richText;
-        console.log(richText);
         if(page.results.length) {
           let pageId = page.results[0].id;
           await this.notionApi.addComment({pageId,richText})
