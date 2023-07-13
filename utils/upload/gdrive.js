@@ -119,8 +119,10 @@ class GDrive {
     let fileId = driveFileData.data.id;
     if (role && type) await this.addPermissions({ fileId, role, type });
     driveFileData = await this.getWebViewLink({ fileId });
+    console.log(driveFileData);
     let downloadUrl = driveFileData.data.webContentLink;
     let embedUrl = driveFileData.data.webViewLink.replace("/view", "/preview");
+    console.log(embedUrl);
     return {
       downloadUrl,
       embedUrl,
