@@ -34,7 +34,7 @@ class GDrive {
       }
       writeFileSync(serviceAccountKeyPath, serviceAccountKey, "utf8");
     }
-    let auth = new auth.GoogleAuth({
+    let auth = new _auth.GoogleAuth({
       keyFilename: serviceAccountKeyPath,
       scopes: ["https://www.googleapis.com/auth/drive"],
     });
