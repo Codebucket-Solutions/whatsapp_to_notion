@@ -19,9 +19,8 @@ const {
   SUCCESS,
 } = constant;
 const moment = require('moment-timezone');
-const { GDrive } = require("../../../utils/upload");
+const { Upload } = require("../../../utils/upload");
 const mime = require('mime-types');
-const { text } = require("express");
 
 class Auth {
   constructor() {
@@ -37,17 +36,14 @@ class Auth {
 
     this.whatsappWebhook.on("message", async (message,value)=>{
       await this.messageHandler(message,value);
-    })
+    });
 
     this.notionApi = new Notion({
       databaseId:process.env.NOTION_DATABASE_ID,
       token:process.env.NOTION_TOKEN
-    })
+    });
 
-    this.gDriveApi = new GDrive({
-      serviceAccountKey:process.env.SERVICE_ACCOUNT_KEY,
-      serviceAccountKeyPath:process.env.SERVICE_ACCOUNT_KEY_PATH
-    })
+    this.uploadApi = new Upload(JSON.parse(process.env.UPLOAD));
 
   }
 
@@ -94,9 +90,31 @@ class Auth {
   }
 
   async createNotionPayload(props) {
-    let {name,tags,date,urls,file,filePreview,messageId,entireText} = props;
+    let {name,tags,date,urls,file,embed,messageId,entireText,replyId} = props;
     let properties = {};
     let children = [];
+    
+    if(entireText)
+      children.push(
+        notionProps.paragraph([notionProps.text(entireText)])
+      )
+
+    if(urls) {
+      children.push(
+        ...urls.map(url=>notionProps.embed(notionProps.url(url)))
+      )
+    }
+
+    if(embed) {
+      children.push(
+        notionProps.embed(notionProps.url(embed))
+      )
+    }
+
+    if(replyId) {
+      return {richText:notionProps.richText(children)}
+    }
+    
     if(name)
       properties['Name'] = notionProps.pageTitle(name);
     if(tags) {
@@ -116,23 +134,6 @@ class Auth {
       properties['Message Id'] = notionProps.richText([notionProps.text(messageId)])
     }
 
-    if(entireText)
-      children.push(
-        notionProps.paragraph([notionProps.text(entireText)])
-      )
-
-    if(urls) {
-      children.push(
-        ...urls.map(url=>notionProps.embed(notionProps.url(url)))
-      )
-    }
-
-    if(filePreview) {
-      children.push(
-        notionProps.embed(notionProps.url(filePreview))
-      )
-    }
-
     return {
       properties,children
     }
@@ -140,7 +141,7 @@ class Auth {
 
   async messageHandler (message,value) {
     try {
-      let {messageId,phoneNumberId,dateObject,mediaId,mimeType,fileName,caption} = await this.commonHandler(message,value,message.type);
+      let {messageId,phoneNumberId,dateObject,mediaId,mimeType,fileName,caption,replyId} = await this.commonHandler(message,value,message.type);
       let processedText = {}
       let text = '';   
       if(message.type!='text')
@@ -157,24 +158,21 @@ class Auth {
       processedText['#'].push(message.type);
 
       let fileUrl = null;
-      let filePreviewUrl = null;
+      let embedUrl = null;
 
       if(message.type!='text') {
         let fileData = await this.whatsappCloudApi.getMediaUrl(mediaId);
   
         let mediaStream = await this.whatsappCloudApi.getMediaStream(fileData.data.url);
   
-        let driveFileData = await this.gDriveApi.uploadFile({fileName,mimeType,mediaStream});
+        let {downloadUrl,embedUrl} = await this.uploadApi.upload(
+          {
+            fileName,mimeType,mediaStream,role:'reader',type:'anyone',
+          }
+        )
   
-        let fileId = driveFileData.data.id;
-  
-        await this.gDriveApi.addPermissions({fileId,role: 'reader',type: 'anyone'});
-  
-        driveFileData = await this.gDriveApi.getWebViewLink({fileId});
-  
-        fileUrl = driveFileData.data.webViewLink;
-
-        filePreviewUrl = fileUrl.replace('/view','/preview')
+        fileUrl = downloadUrl;
+        embedUrl = embedUrl
       }
   
       let notionPayload = await this.createNotionPayload({
@@ -185,10 +183,22 @@ class Auth {
         messageId:messageId,
         entireText:message.type!='text'?caption:text,
         file:fileUrl,
-        filePreview:filePreviewUrl
+        embed:embedUrl,
+        replyId:replyId
       })
-  
-      await this.notionApi.addPage(notionPayload);
+
+      if(replyId) {
+        let page = await this.notionApi.getPage({
+          property:"Message Id",
+          filter: {"rich_text": {"equals": replyId}}
+        })
+        let richText = notionPayload.richText;
+        if(page.results.length) {
+          let pageId = page.results[0].id;
+          await this.notionApi.addComment({pageId,richText})
+        }
+      } else
+        await this.notionApi.addPage(notionPayload);
   
       await this.whatsappCloudApi.markMessageAsRead(phoneNumberId,messageId);
     } catch (e) {

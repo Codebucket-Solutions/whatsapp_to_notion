@@ -24,6 +24,43 @@ class Notion {
         })
     }
 
+    async getPage(data) {
+        let {property,filter} = data;
+
+        let payload = {
+            database_id: this.databaseId,
+        };
+
+        if (filter) {
+            payload = {
+                ...payload,
+                filter: {
+                    property,
+                    filter
+                }
+            }
+        }
+            
+
+        const pages =  this.notionClient.databases.query(payload);
+        
+        return pages;
+    }
+
+    async addComment(data) {
+        let {pageId,discussionId,richText} = data;
+        
+        let payload = {rich_text:richText}
+
+        if(pageId) 
+            payload = {...payload,parent:{page_id:pageId}}
+
+        if(discussionId) 
+            payload = {...payload,discussion_id:discussionId}
+
+        this.notionClient.comments.create(payload)
+    } 
+
     
 }
 
