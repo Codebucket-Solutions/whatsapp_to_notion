@@ -10,6 +10,7 @@ const { validateToken, handleError } = require("./middleware");
 const {morganLogger } = require("./middleware/logger");
 const app = express();
 
+app.use("/", express.static(path.join(__dirname, "../public")));
 
 app.use(morganLogger)
 	.use(cors())
