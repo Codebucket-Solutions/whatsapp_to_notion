@@ -112,6 +112,7 @@ class Auth {
     }
 
     if(replyId) {
+      console.log(children)
       return {richText:notionProps.richText(children)}
     }
     
@@ -192,6 +193,7 @@ class Auth {
           filter: {property:"Message Id","rich_text": {"equals": replyId}}
         })
         let richText = notionPayload.richText;
+        console.log(richText);
         if(page.results.length) {
           let pageId = page.results[0].id;
           await this.notionApi.addComment({pageId,richText})
