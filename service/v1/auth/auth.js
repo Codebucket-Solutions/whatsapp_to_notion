@@ -157,8 +157,8 @@ class Auth {
 
       processedText['#'].push(message.type);
 
-      let fileUrl = null;
-      let embedUrl = null;
+      let file = null;
+      let embed = null;
 
       if(message.type!='text') {
         let fileData = await this.whatsappCloudApi.getMediaUrl(mediaId);
@@ -171,8 +171,8 @@ class Auth {
           }
         )
   
-        fileUrl = downloadUrl;
-        embedUrl = embedUrl
+        file = downloadUrl;
+        embed = embedUrl
       }
   
       let notionPayload = await this.createNotionPayload({
@@ -182,8 +182,8 @@ class Auth {
         date:dateObject,
         messageId:messageId,
         entireText:message.type!='text'?caption:text,
-        file:fileUrl,
-        embed:embedUrl,
+        file,
+        embed,
         replyId:replyId
       })
 
