@@ -18,6 +18,7 @@ class Upload {
   async upload(options) {
     return await this.uploader.upload(options);
   }
+  
 }
 
 module.exports = {
