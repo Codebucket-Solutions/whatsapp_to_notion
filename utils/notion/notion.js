@@ -43,7 +43,7 @@ class Notion {
     async addComment(data) {
         let {pageId,discussionId,richText} = data;
         
-        let payload = {rich_text:richText}
+        let payload = {...richText}
 
         if(pageId) 
             payload = {...payload,parent:{page_id:pageId}}
