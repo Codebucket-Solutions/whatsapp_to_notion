@@ -23,7 +23,7 @@ class Local {
     await pipeline(mediaStream, fs.createWriteStream(filePath));
     let data = {filePath}
     if(this.baseUrl) {
-      let downloadUrl = new URL('/'+fileName, this.baseUrl).href;
+      let downloadUrl = this.baseUrl+'/'+fileName;
       data = {...data,downloadUrl}
     }
     return data;
