@@ -8,6 +8,9 @@ class Local {
   constructor(options) {
     let {folderPath,baseUrl} = options;
     this.baseUrl = baseUrl;
+    if (!path.isAbsolute(folderPath)) {
+      folderPath = path.join(__dirname, folderPath);
+    }
     if (!fs.existsSync(folderPath)) {
 			fs.mkdirSync(folderPath, { recursive: true });
 		}
