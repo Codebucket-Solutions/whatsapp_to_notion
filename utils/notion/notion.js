@@ -34,10 +34,7 @@ class Notion {
         if (filter) {
             payload = {
                 ...payload,
-                filter: {
-                    property,
-                    filter
-                }
+                ...filter
             }
         }
             
