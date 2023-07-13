@@ -96,13 +96,16 @@ class Auth {
     
     if(replyId) {
       let comment = []
-      if(entireText) {
-        comment.push(notionProps.text(entireText))
-      }
       if(urls) {
+        for(let url of urls) {
+          entireText=entireText.replace(url,"");
+        }
         comment.push(
           ...urls.map(url=>notionProps.text(url+'\n',notionProps.url(url)))
         )
+      }
+      if(entireText) {
+        comment.push(notionProps.text(entireText))
       }
       if(file) {
         comment.push(
