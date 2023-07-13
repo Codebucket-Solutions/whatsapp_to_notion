@@ -24,21 +24,17 @@ class Notion {
         })
     }
 
-    async getPage(data) {
-        let {property,filter} = data;
+    async getPages(data) {
+        let {filter,sorts} = data;
 
         let payload = {
             database_id: this.databaseId,
         };
 
-        if (filter) {
-            payload = {
-                ...payload,
-                ...filter
-            }
-        }
-            
+        if (filter) { payload = { ...payload,filter } }
 
+        if (sorts) { payload = { ...payload,sorts } }
+            
         const pages =  this.notionClient.databases.query(payload);
         
         return pages;

@@ -188,9 +188,8 @@ class Auth {
       })
 
       if(replyId) {
-        let page = await this.notionApi.getPage({
-          property:"Message Id",
-          filter: {"rich_text": {"equals": replyId}}
+        let page = await this.notionApi.getPages({
+          filter: {property:"Message Id","rich_text": {"equals": replyId}}
         })
         let richText = notionPayload.richText;
         if(page.results.length) {
