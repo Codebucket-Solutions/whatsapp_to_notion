@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": { 
-		"start_dev": "node ./bin/www",
+		"start_stage": "node ./bin/www",
 		"start_dev_server": "export NODE_ENV=development&&nodemon ./bin/www",
 		"start_test": "set NODE_ENV=development&&pm2 start ./bin/www --name 'WHATSAPP-WEBHOOK'",
 		"start_prod": "set NODE_ENV=production&&node ./bin/www --name 'WHATSAPP-WEBHOOK'"
